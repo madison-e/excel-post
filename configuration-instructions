@@ -1,0 +1,20 @@
+The following configuration steps only need to be completed once:
+
+1) Adjust your Excel settings if you cannot view or edit the macros in this Excel file. Go to: File > Options > Trust Center > Trust Center Settings... > Macro Settings > Check "Enable all macros". You may also need to check "Trust access to the VBA project model".
+2) In Macro 1, test column headers have been added for email, first name, last name, and company. Add, remove, or edit these headers as needed in an order that makes sense to you. The URL builder does not run a dynamic/fuzzy match in this version so order is important for the next step.
+3) In Macro 2, scroll about halfway down and you'll find this line:
+     - Sheets("Data").Range("A2").FormulaR1C1 = "=""https://secure.p01.eloqua.com/e/f2.aspx?elqFormName=TEST&elqSiteID=TEST&email=""&RC[1]&""&first_name=""&RC[2]&""&last_name=""&RC[3]&""&company=""&RC[4]"
+     - On this line, you'll want to configure:
+         - Your system's base URL. For example, Eloqua's base URL is: https://secure.p01.eloqua.com/e/f2.aspx
+         - Required system fields that point the URL to your specific instance. For example, Eloqua requires elqFormName and elqSiteID.
+         - Your form fields' HTML names. Add these after your required system fields in the same order that you put them in Macro 1. Order is important. For instance, I matched email with the cell RC[1] because the email is in the first column in our spreadsheet.
+     - A few tips on POST URLs:
+         - A question mark (?) should follow after the base URL and before the first HTML name (ex: https://secure.p01.eloqua.com/e/f2.aspx?)
+         - An ampersand (&) should precede all HTML names after the first HTML name. It acts as a record separator to tell the system it is a HTML field name rather than a field value. (ex: https://secure.p01.eloqua.com/e/f2.aspx?elqFormName=TEST&elqSiteID=TEST)
+         - An equal sign (=) should follow HTML names to signify the value that is assigned to that field. (ex: elqFormName=)
+4) Optional security settings:
+     - Optional: If you are supplying this program to a user or a vendor, I highly recommend giving them a password protected copy so that they cannot view or edit macro code. Go to: Tools > VBAProject Properties... > Protection tab to enter a password.
+     - Optional: If you would like to set an expiration date for a user so that they cannot use the program after a certain date, you can configure this in Macro 0 below.
+        
+After configuring the steps above, run a few tests to a sandbox environment to ensure a smooth setup.
+Congrats, you are ready to start posting!
