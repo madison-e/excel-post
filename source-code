@@ -3,7 +3,7 @@
 ' Language: VBA
 ' Licensing: MIT License (Open Source)
 ' Version: 02/20/2020
-' Purpose: POST Excel spreadsheet data to a system's form
+' Purpose: POST Excel spreadsheet data to a system's form 
 
 ' One-time configuration instructions:
     ' 1) Adjust your Excel settings if you cannot view or edit the macros in this Excel file. Go to: File > Options > Trust Center > Trust Center Settings... > Macro Settings > Check "Enable all macros". You may also need to check "Trust access to the VBA project model".
