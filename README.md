@@ -3,7 +3,7 @@ This repository contains the code for Excel POST, a series of self-service macro
 
 <ul>
 <li>Developer: Madison Eichberg</li>
-<li>Licensing: MIT Licensing (Open Source)</li>
+<li>License: <a href="https://github.com/meichberg/excel-post/blob/master/Excel%20POST.xlsm" target="_blank">MIT Licensing</a> (Open Source)</li>
 <li>Language: VBA</li>
 <li>Latest Version: 02/20/2020</li>
 </ul>
