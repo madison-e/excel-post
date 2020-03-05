@@ -17,4 +17,4 @@ The following configuration steps only need to be completed once:
      - Optional: If you would like to set an expiration date for a user so that they cannot use the program after a certain date, you can configure this in Macro 0 below.
         
 After configuring the steps above, run a few tests to a sandbox environment to ensure a smooth setup.
-Congrats, you are ready to start posting!
+Congrats, you are ready to start posting! 
