@@ -1,7 +1,6 @@
-' Owner: Madison Eichberg
-' Github: https://github.com/meichberg/excel-post
-' Language: VBA
-' Licensing: MIT License (Open Source)
+' Author: Madison Eichberg
+' GitHub: https://github.com/meichberg/excel-post
+' License: MIT License
 ' Version: 02/20/2020
 ' Purpose: POST Excel spreadsheet data to a system's form 
 
