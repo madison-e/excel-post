@@ -1,0 +1,220 @@
+' Owner: Madison Eichberg
+' Github: https://github.com/meichberg/excel-post
+' Language: VBA
+' Licensing: MIT License (Open Source)
+' Version: 02/20/2020
+' Purpose: POST Excel spreadsheet data to a system's form
+
+' One-time configuration instructions:
+    ' 1) Adjust your Excel settings if you cannot view or edit the macros in this Excel file. Go to: File > Options > Trust Center > Trust Center Settings... > Macro Settings > Check "Enable all macros". You may also need to check "Trust access to the VBA project model".
+    ' 2) In Macro 1, test column headers have been added for email, first name, last name, and company. Add, remove, or edit these headers as needed in an order that makes sense to you. The URL builder does not run a dynamic/fuzzy match in this version so order is important for the next step.
+    ' 3) In Macro 2, scroll about halfway down and you'll find this line below:
+        ' Sheets("Data").Range("A2").FormulaR1C1 = "=""https://secure.p01.eloqua.com/e/f2.aspx?elqFormName=TEST&elqSiteID=TEST&email=""&RC[1]&""&first_name=""&RC[2]&""&last_name=""&RC[3]&""&company=""&RC[4]"
+        ' On this line, you'll want to setup:
+            ' Your system's base URL. For example, Eloqua's base URL is: https://secure.p01.eloqua.com/e/f2.aspx
+            ' Required system fields that point the URL to your specific instance. For example, Eloqua requires elqFormName and elqSiteID.
+            ' Your form fields' HTML names. Add these after your required system fields in the same order that you put them in Macro 1. Order is important. For instance, I matched email with the cell RC[1] because the email is in the first column in our spreadsheet.
+        ' A few tips on POST URLs:
+            ' A question mark (?) should follow after the base URL and before the first HTML name (ex: https://secure.p01.eloqua.com/e/f2.aspx?)
+            ' An ampersand (&) should precede all HTML names after the first HTML name. It acts as a record separator to tell the system it is a HTML field name rather than a field value. (ex: https://secure.p01.eloqua.com/e/f2.aspx?elqFormName=TEST&elqSiteID=TEST)
+            ' An equal sign (=) should follow HTML names to signify the value that is assigned to that field. (ex: elqFormName=)
+    ' 4) Optional security settings:
+        ' Optional: If you are supplying this program to a user or a vendor, I highly recommend giving them a password protected copy so that they cannot view or edit macro code. Go to: Tools > VBAProject Properties... > Protection tab to enter a password.
+        ' Optional: If you would like to set an expiration date for a user so that they cannot use the program after a certain date, you can configure this in Macro 0 below.
+
+' After configuring the steps above, run a few tests to a sandbox environment to ensure a smooth setup.
+' Congrats, you are ready to start posting!
+    
+
+    
+' Global variable declarations
+Private button_stop As Boolean
+Dim date_today As Date
+Dim date_expiration As Date
+Private has_expired As Boolean
+
+Public Sub Macro_0_Check_Expiration_Date()
+    
+    'Check if the program has expired
+    date_today = Format(Now(), "MM/DD/YYYY")
+    date_expiration = False                        'No expiration by default
+    'date_expiration = DateValue("6/30/2018")      'OPTIONAL - CONFIGURE AN EXPIRATION DATE HERE. Uncomment code to the left and change the date in the DateValue() function.
+    
+    If date_expiration = False Then
+        has_expired = False                        'Proceed, program does not have an expiration
+    ElseIf date_today > date_expiration Then
+        MsgBox "Program has expired. Contact the owner of this file."
+        has_expired = True                         'Stop, program has an expiration AND the date has passed
+    Else                                           'Proceed, program has an expiration BUT the date has not passed yet
+    End If
+    
+End Sub
+
+Sub Macro_1_Refresh_Data()
+    
+    'Check if the program has expired
+    Call Macro_0_Check_Expiration_Date
+    If has_expired = True Then
+        has_expired = False     'Reset expiration
+        Exit Sub                'Exit method to prevent user from running macro
+    End If
+    
+    'Delete old data from "Data" sheet
+    Sheets("Data").Select
+    Cells.Select
+    Selection.Delete Shift:=xlUp
+    Selection.EntireRow.Delete
+    
+    'Enter fields on top row of "Data" sheet - configure your fields here!
+    Sheets("Data").Range("A1").Value = "Email"
+    Sheets("Data").Range("B1").Value = "First Name"
+    Sheets("Data").Range("C1").Value = "Last Name"
+    Sheets("Data").Range("D1").Value = "Company"
+   
+    MsgBox "Sheet has been reset. Please enter your data under the specified columns before proceeding to Step 2." & vbNewLine & vbNewLine & "Do not rename, delete, or move any column headers."
+ 
+End Sub
+
+Sub Macro_2_Construct_URLs()
+
+    Dim Data As Worksheet
+    Dim Data_Last_Row As Integer
+    Dim cell As Range
+    Dim counter As Integer
+    
+    'Check if the program has expired
+    Call Macro_0_Check_Expiration_Date
+    If has_expired = True Then
+        has_expired = False     'Reset expiration
+        Exit Sub                'Exit method to prevent user from running macro
+    End If
+
+    'Select "Data" sheet
+    Sheets("Data").Select
+    Cells.Select
+    
+    'Reset "Stop" button
+    button_stop = False
+
+    'Insert new column "A" for POST URLs
+    Sheets("Data").Columns("A:A").Select
+    Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+    
+    'Construct POST URL in column A
+    'Configure your base URL, form, environment, and HTML form field names below (as required by your system)
+    'For testing purposes, the URL is currently pointing to a non-existing form in Eloqua
+    Sheets("Data").Range("A1").Value = "POST URL"
+    Sheets("Data").Range("A2").FormulaR1C1 = "=""https://secure.p01.eloqua.com/e/f2.aspx?elqFormName=TEST&elqSiteID=TEST&email=""&RC[1]&""&first_name=""&RC[2]&""&last_name=""&RC[3]&""&company=""&RC[4]"
+    
+    'Autofill POST formula to last row of data & copy/paste as values
+    Data_Last_Row = Sheets("Data").Range("D" & Rows.Count).End(xlUp).Row
+    
+    If Data_Last_Row > 2 Then
+        Sheets("Data").Range("A2").Select
+        Selection.AutoFill Destination:=Range("A2:A" & Data_Last_Row)
+    Else
+    End If
+    
+    Sheets("Data").Columns("A:A").Select
+    Selection.Copy
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+    
+    'Turn POST URLs into Hyperlinks
+    counter = 2
+    Do While counter <= Data_Last_Row
+        With Worksheets("Data")
+            .Hyperlinks.Add Anchor:=.Range("A" & counter), _
+            Address:=Sheets("Data").Range("A" & counter).Value, _
+            ScreenTip:="", _
+            TextToDisplay:=Sheets("Data").Range("A" & counter).Value
+        End With
+        counter = counter + 1
+    Loop
+    
+    MsgBox "URLs have been constructed in column A." & vbNewLine & vbNewLine & "Please review before proceeding to Step 3."
+    
+End Sub
+
+Sub Macro_3_Post_Data()
+
+    Dim msg_prompt1, msg_button1, msg_response1
+    Dim counter As Integer
+    Dim Data_Last_Row As Integer
+    Dim program_time As String
+    
+    'Check if the program has expired
+    Call Macro_0_Check_Expiration_Date
+    If has_expired = True Then
+        has_expired = False     'Reset expiration
+        Exit Sub                'Exit method to prevent user from running macro
+    End If
+    
+    'Select "Data" sheet
+    Sheets("Data").Select
+    Cells.Select
+    
+    'Reset "Stop" button
+    button_stop = False
+    
+    'Count # of rows & seconds/minutes to complete program
+    Data_Last_Row = Sheets("Data").Range("D" & Rows.Count).End(xlUp).Row
+    If ((Data_Last_Row * 2) < 60) Then
+        program_time = (Data_Last_Row * 2) & " seconds"
+    ElseIf ((Data_Last_Row * 2) < 120) Then
+        program_time = WorksheetFunction.Round(((Data_Last_Row * 2) / 60), 0) & " minute"
+    Else
+        program_time = WorksheetFunction.Round(((Data_Last_Row * 2) / 60), 0) & " minutes"
+    End If
+    
+    'Prompt user for POST URL construction
+    msg_prompt1 = "You are about to post " & (Data_Last_Row - 1) & " record(s) to the system. Please allow " & program_time & " for the program to run." & vbNewLine & vbNewLine & "Select ""OK"" to proceed." & vbNewLine & vbNewLine & "Select ""Cancel"" to exit the program."
+    msg_button1 = vbOKCancel + vbExclamation + vbDefaultButton2
+    msg_response1 = MsgBox(msg_prompt1, msg_button1, "POST URL Verification")
+    
+    'User selects "OK" to post data
+    If msg_response1 = vbOK Then
+    
+        'Notify user how long program will run & instructions to cancel at any time
+        msg_prompt2 = "To cancel the program at any time, please click the ""Stop"" button found on the Instructions tab." & vbNewLine & vbNewLine & "Alternatively, you can press the ""Esc"" key on a Windows computer or ""Command"" + ""."" on a Mac."
+        msg_button2 = vbOKOnly + vbInformation + vbDefaultButton2
+        msg_response2 = MsgBox(msg_prompt2, msg_button2, "Notice")
+            
+        'Error Handler if 'Esc' key is hit at any time on a PC. Or 'Command' + '.' on a Mac.
+        On Error GoTo handleCancel
+        Application.EnableCancelKey = xlErrorHandler
+            
+        'POST Submitter loop. Cancels if user hits 'Esc' key (on Windows PC), 'Command' + '.' (on Mac), or hits the "Stop" button
+        counter = 2
+        Do While counter <= Data_Last_Row
+            If button_stop = True Then
+                button_stop = False 'Reset "Stop" button
+                Exit Sub
+            End If
+                
+            ActiveWorkbook.FollowHyperlink Sheets("Data").Range("A" & counter).Value, , True
+            Sheets("Data").Range("A" & counter).Interior.Color = 5296274
+            Application.Wait (Now + TimeValue("0:00:02")) 'wait 2 seconds in between posts to prevent overloading
+            counter = counter + 1
+        Loop
+        
+        MsgBox "You have successfully posted " & (counter - 2) & " record(s)."
+            
+        'Exception - User hits 'ESC' key to cancel automation
+handleCancel:
+        If Err = 18 Then
+            MsgBox "This program has been terminated. Completed posts in are highlighted in green."
+        End If
+    
+    Else 'Exit program if user selects "Cancel" to 1st message box
+    
+    End If
+    
+End Sub
+
+Sub Macro_4_Button_Stop_Click()
+
+    'User clicked "Stop" button to exit the program
+    button_stop = True
+
+End Sub
