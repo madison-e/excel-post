@@ -24,4 +24,4 @@ This repository contains the code for Excel POST, a series of self-service macro
 
 To get started, <a href="https://github.com/meichberg/excel-post/blob/master/Excel%20POST.xlsm" target="_blank">download Excel POST</a> and see <a href="https://github.com/meichberg/excel-post/blob/master/configuration-instructions" target="_blank">configuration instructions</a>.
 
-Happy POSTing! 
+Happy POSTing!
