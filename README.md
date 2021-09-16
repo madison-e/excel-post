@@ -1,5 +1,5 @@
 # Excel POST
-This repository contains the code for Excel POST, a series of self-service macros in Excel VBA that allows a user to submit spreadsheet data to a system's form via HTTP POST requests.
+This repository contains the code for Excel POST, a series of self-service macros in Excel VBA that allows a user to submit spreadsheet data to a system's web form via HTTP POST requests.
 
 <ul>
 <li>Developer: Madison Eichberg</li>
